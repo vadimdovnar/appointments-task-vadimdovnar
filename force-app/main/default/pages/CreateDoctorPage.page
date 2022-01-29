@@ -1,0 +1,75 @@
+<apex:page controller="CreateDoctorController" docType="html-5.0" >
+    <apex:pageBlock title="Create Doctor" >
+        <apex:pageMessages id="Messages" />
+        
+            <apex:form >
+                <apex:pageBlock >
+             
+                    <apex:pageBlockSection >
+                        <apex:inputField id="doctorName" label="Doctor Name" value="{! doctor.Name}" required="true" />
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection columns="1" id="dateBlock">
+                        <apex:inputField type="time" value="{! doctor.Working_Hours_Start__c}" />
+                        <apex:inputField type="time" value="{! doctor.Working_Hours_End__c}" />
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection >
+                        <apex:commandButton action="{! createDoctor }" value="Add New Doctor" reRender="DoctorsTable, Messages, doctorName, dateBlock"  onclick="reloadAppointmentPage()" />
+                    </apex:pageBlockSection>
+                    
+                </apex:pageBlock>
+            </apex:form>
+            
+            <apex:form >
+                <apex:pageBlock id="DoctorsTable" >
+                        <apex:pageBlockTable value="{! doctorsForTable}" var="doc" style="margin: 0 0 10px 0" >
+                            
+                            <apex:column headerValue="View" >
+                                <apex:outputLink value="{! URLFOR( $Action.DV_Doctor__c.View, doc.Id )}" target="_blank" >View</apex:outputLink>
+                            </apex:column>
+                            
+                            <apex:column headerValue="Doctor's Name" value="{! doc.Name}"  />
+                            
+                            <apex:column headerValue="Working Hours Start" value="{! doc.Working_Hours_Start__c}" />
+                            
+                            <apex:column headerValue="Working Hours End" value="{! doc.Working_Hours_End__c}" />
+                            
+                        </apex:pageBlockTable>
+                   
+                        <apex:panelGrid columns="10" style="margin:0 auto">
+                            <apex:actionRegion >
+                                <apex:selectList value="{! pageSize}" multiselect="false" size="1" >
+                                    <apex:selectOption itemLabel="5" itemValue="5" />
+                                    <apex:selectOption itemLabel="10" itemValue="10" />
+                                    <apex:selectOption itemLabel="15" itemValue="15" />
+                                    <apex:selectOption itemLabel="20" itemValue="20" />
+                                    <apex:actionSupport event="onchange" action="{! refreshPageSize}" reRender="DoctorsTable" />
+                                </apex:selectList>
+                                <apex:commandButton status="fetchStatus" reRender="DoctorsTable" value="First" action="{! getFirst}" disabled="{!!setCon.hasPrevious}" title="First Page"/> 
+                  
+                                <apex:commandButton status="fetchStatus" reRender="DoctorsTable" value="Previous" action="{! getPrevious}" disabled="{!!setCon.hasPrevious}" title="Previous Page"/> 
+                                
+                                <apex:outputLabel value="{! setCon.PageNumber}/{! CEILING(setCon.ResultSize / setCon.PageSize)}" />
+                                    
+                                <apex:commandButton status="fetchStatus" reRender="DoctorsTable" value="Next" action="{! getNext}" disabled="{!!setCon.hasNext}" title="Next Page"/> 
+                  
+                                <apex:commandButton status="fetchStatus" reRender="DoctorsTable" value="Last" action="{! getLast}" disabled="{!!setCon.hasNext}" title="Last Page"/> 
+                            </apex:actionRegion>
+                        </apex:panelGrid>
+                    
+                </apex:pageBlock>
+           </apex:form>
+        
+    </apex:pageBlock>
+    
+    <script>
+    	function reloadAppointmentPage() {          
+                window.setTimeout( () => {
+                window.opener.location.reload();
+                }, 1000 );
+  
+        }
+    </script>
+    
+</apex:page>

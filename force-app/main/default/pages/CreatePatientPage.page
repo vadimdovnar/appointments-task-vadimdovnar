@@ -1,0 +1,65 @@
+<apex:page controller="CreatePatientControler" docType="html-5.0" >
+	<apex:pageBlock title="Create Patient" >
+        
+        <apex:pageMessages id="Messages" />
+	
+            <apex:form >
+                <apex:pageBlock >
+              
+                    <apex:pageBlockSection >
+                        <apex:inputField label="Patient Name" value="{! patient.Name}" required="true" id="patientName" />
+                    </apex:pageBlockSection>
+                    
+                    <apex:commandButton action="{! createPatient }" value="Add New Patient" reRender="PatientssTable, Messages, patientName"  onclick="reloadAppointmentPage()" />
+                    
+                </apex:pageBlock>
+            </apex:form>
+            
+            <apex:form >
+                <apex:pageBlock id="PatientssTable" >
+                        <apex:pageBlockTable value="{! patientsForTable}" var="p" style="margin: 0 0 10px 0" >
+                            
+                            <apex:column headerValue="View" >
+                                <apex:outputLink value="{! URLFOR( $Action.DV_Patient__c.View, p.Id )}" target="_blank" >View</apex:outputLink>
+                            </apex:column>
+                            
+                            <apex:column headerValue="Patient's Name" value="{! p.Name}"  />
+                            
+                        </apex:pageBlockTable>
+                   
+            
+                        <apex:panelGrid columns="10" style="margin:0 auto">
+                            <apex:actionRegion >
+                                <apex:selectList value="{! pageSize}" multiselect="false" size="1" >
+                                    <apex:selectOption itemLabel="5" itemValue="5" />
+                                    <apex:selectOption itemLabel="10" itemValue="10" />
+                                    <apex:selectOption itemLabel="15" itemValue="15" />
+                                    <apex:selectOption itemLabel="20" itemValue="20" />
+                                    <apex:actionSupport event="onchange" action="{! refreshPageSize}" reRender="PatientssTable" />
+                                </apex:selectList>
+                                <apex:commandButton status="fetchStatus" reRender="PatientssTable" value="First" action="{! getFirst}" disabled="{!!setCon.hasPrevious}" title="First Page"/> 
+                  
+                                <apex:commandButton status="fetchStatus" reRender="PatientssTable" value="Previous" action="{! getPrevious}" disabled="{!!setCon.hasPrevious}" title="Previous Page"/> 
+                                
+                                <apex:outputLabel value="{! setCon.PageNumber}/{! CEILING(setCon.ResultSize / setCon.PageSize)}" />
+                                    
+                                <apex:commandButton status="fetchStatus" reRender="PatientssTable" value="Next" action="{! getNext}" disabled="{!!setCon.hasNext}" title="Next Page"/> 
+                  
+                                <apex:commandButton status="fetchStatus" reRender="PatientssTable" value="Last" action="{! getLast}" disabled="{!!setCon.hasNext}" title="Last Page"/> 
+                            </apex:actionRegion>
+                        </apex:panelGrid>
+                    
+                </apex:pageBlock>
+           </apex:form>
+        
+    </apex:pageBlock>
+    
+    <script>
+    	function reloadAppointmentPage() {
+                window.setTimeout( () => {
+                window.opener.location.reload();
+                }, 1000 );
+        }
+    </script>
+    
+</apex:page>

@@ -1,0 +1,124 @@
+<apex:page controller="DoctorAppointmentController"  docType="html-5.0" >
+    <apex:pageMessages id="Messages" />
+
+    <apex:pageBlock title="Appointment Table">
+        <apex:form >
+            <apex:pageBlock > 
+                	
+                	<!-- Select a Doctor -->
+                    <apex:pageBlockSection id="DoctorsList" >                        
+                         <apex:selectList label="Select a doctor" size="1" value="{! selectedDoctor}">
+                             	<apex:selectOption itemLabel="All Doctors" itemValue="" />
+                                <apex:selectOptions value="{! doctorItems}" />                             	
+                                <apex:actionSupport event="onchange" action="{! getSortedListByDoctors}" reRender="AppointmentsTable, WorkingHours, Messages" />                                                
+                         </apex:selectList>                         
+                    </apex:pageBlockSection>
+					
+                	<!-- Create new Doctor -->
+                	<apex:pageBlockSection >
+                        <apex:commandButton onclick="openCreateDoctorPage()" value="Create New Doctor"  /> 
+                	</apex:pageBlockSection>
+                	
+                    
+                	<!-- output Working Hours Start and Working Hours End -->
+                    <apex:pageBlockSection id="WorkingHours" columns="1">
+                        <apex:outputField value="{! doctorDetails.Working_Hours_Start__c}" />
+                        <apex:outputField value="{! doctorDetails.Working_Hours_End__c}" />
+                    </apex:pageBlockSection>
+            		
+                	<!-- Selecte a Patient -->
+                    <apex:pageBlockSection id="PatientList" >
+                        <apex:selectList label="Select a pacient" size="1" value="{! selectedPatient}">
+                        	<apex:selectOptions value="{! patientItems}" />
+                            <apex:actionSupport event="onchange" action="{! setSelectedPatientAppointment}" reRender="" />                                                
+                    	</apex:selectList>
+                    </apex:pageBlockSection>
+                	
+                	<!-- Create new Patient -->
+                	<apex:pageBlockSection >
+						<apex:commandButton onclick="openCreatePatientPage()" value="Create New Patie"  /> 
+                	</apex:pageBlockSection>
+            		
+                	<!-- Input Appointment Date -->
+                    <apex:pageBlockSection columns="1" id="date" >
+                        <apex:inputField type="datetime" label="Appointment Date" value="{! appointment.Appointment_Date__c}" required="false" />
+                    </apex:pageBlockSection>
+                	
+                	<!-- Input Duration in minutes -->
+                    <apex:pageBlockSection id="duration" >
+                        <apex:inputField label="Duration in minutes"  type="number" value="{! appointment.Duration_in_minutes__c}" required="false" />
+                    </apex:pageBlockSection>
+                    
+                	<!-- Create new Appointment -->
+                	<apex:pageBlockSection >
+                        <apex:commandButton action="{! createdNewAppointment}" value="Add New Appointment"  />
+                	</apex:pageBlockSection>
+            </apex:pageBlock>             
+        </apex:form>       
+    </apex:pageBlock>
+    
+    
+	<!-- Appointment Table -->
+    <apex:pageBlock id="AppointmentsTable">
+        <apex:form >
+            <apex:pageBlockTable value="{! AppointmentsList}"  var="a">
+                
+                <apex:column headerValue="Action" >               
+                    <apex:outputLink value="{! URLFOR($Action.DV_Appointment__c.View, a.id)}" target="_blank" >View</apex:outputLink>
+                </apex:column>
+                
+                <apex:column value="{! a.DV_Doctor__r.Name }">
+                    <apex:facet name="header">
+                        <apex:commandLink action="{! sortByDoctorName }"
+                            reRender="AppointmentsTable">Doctor's Name &#11015;
+                        </apex:commandLink>
+                    </apex:facet>
+                </apex:column>
+                <apex:column value="{! a.DV_Patient__r.Name }">
+                    <apex:facet name="header">
+                        <apex:commandLink action="{! sortByPatientName }"
+                            reRender="AppointmentsTable">Patient's Name &#11015;
+                        </apex:commandLink>
+                    </apex:facet>
+                </apex:column>
+                
+                <apex:column value="{! a.Appointment_Date__c}" headerValue="Date" />
+                
+                <apex:column value="{! a.Duration_in_minutes__c}" headerValue="Duration in minutes" />
+                
+            </apex:pageBlockTable>
+            
+            <!-- pagination block -->
+            <apex:panelGrid columns="10">
+                <apex:selectList value="{! pageSize}" multiselect="false" size="1"  >
+                    <apex:selectOptions value="{!paginationSizeOptions}"/> 
+                    <apex:actionSupport event="onchange" action="{! refreshPageSize}" reRender="AppointmentsTable" />
+                </apex:selectList>
+                
+                <apex:commandButton status="fetchStatus" reRender="AppointmentsTable" value="First" action="{!setCon.first}" disabled="{!!setCon.hasPrevious}" title="First Page"/> 
+  
+                <apex:commandButton status="fetchStatus" reRender="AppointmentsTable" value="Previous" action="{!setCon.previous}" disabled="{!!setCon.hasPrevious}" title="Previous Page"/> 
+  				
+                <apex:outputLabel value="{! setCon.pageNumber}/{! CEILING(resaultSizePage / pageSize)}" />
+                    
+                <apex:commandButton status="fetchStatus" reRender="AppointmentsTable" value="Next" action="{!setCon.next}" disabled="{!!setCon.hasNext}" title="Next Page"/> 
+  
+                <apex:commandButton status="fetchStatus" reRender="AppointmentsTable" value="Last" action="{!setCon.last}" disabled="{!!setCon.hasNext}" title="Last Page"/> 
+   
+            </apex:panelGrid>
+            
+           </apex:form>
+    </apex:pageBlock>
+    
+    <script>
+    	function openCreateDoctorPage() {
+            doctorWind = window.open('{! $Page.CreateDoctorPage}', 'CreateDoctorPage', 'height=800,width=800,top=200,left=200');
+            doctorWin.focus();
+        }
+    	function openCreatePatientPage() {
+            patientWind = window.open('{! $Page.CreatePatientPage}', 'CreatePatientPage', 'height=800,width=800,top=200,left=200');
+            doctorWin.focus();
+        }
+    </script>
+    
+</apex:page>
